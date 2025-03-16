@@ -4,11 +4,20 @@ import { HTTPStatus } from '../../../types/service-response';
 import { ServiceError } from '../../../lib/utils';
 import { getUserMedia } from '../../../lib/persona';
 
+/**
+ * Zod schema for validating user media requests
+ */
 const userMediaSchema = z.object({
   userId: z.string().min(1, 'User ID is required'),
   category: z.enum(['MOVIE', 'TV']).optional(),
 });
 
+/**
+ * Express handler for retrieving a user's media library with optional category filtering
+ * @param req - Express request with userId in params and optional category in query
+ * @param res - Express response object
+ * @returns ServiceResponse with user's media items or error details
+ */
 export default async function fetchUserMedia(req: Request<z.infer<typeof userMediaSchema>, {}, {}>, res: Response) {
   try {
     const { userId } = req.params;

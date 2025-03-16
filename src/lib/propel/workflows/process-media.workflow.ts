@@ -6,33 +6,47 @@ import { getClosestMatchingImdbTitleId } from '../../../util/search-tmdb-imdb-ti
 import { IMediaEntity, MediaEntityModel } from '../../../models/media-entity';
 import { mongoMediaSearchPipeline } from '../../utils';
 
-const { extractFileMetadata, queryBing, queryDB, fetchTmdbEntry, fetchTmdbEpisodes, insertMetadata, insertMediaEntry, deleteMediaEntry } = proxyActivities<typeof activities>({
+const {
+  extractFileMetadata,
+  queryBing,
+  queryDB,
+  fetchTmdbEntry,
+  fetchTmdbEpisodes,
+  insertMetadata,
+  insertMediaEntry,
+  deleteMediaEntry,
+} = proxyActivities<typeof activities>({
   startToCloseTimeout: '10 minutes',
   retry: {
     initialInterval: '1 second',
     maximumAttempts: 3,
     backoffCoefficient: 2,
-  }});
+  },
+});
 
 type ProcessMediaInput = {
   mediaId: string;
   userId: string;
   filePath: string;
-}
+};
 
-export default async function processMediaWorkflow({ userId, mediaId, filePath }: ProcessMediaInput): Promise<IMediaEntity | {}> {
+export default async function processMediaWorkflow({
+  userId,
+  mediaId,
+  filePath,
+}: ProcessMediaInput): Promise<IMediaEntity | {}> {
   try {
     const dbSearchResult = await queryDB({
       $or: [
-        { userId, 'seasons.episodes.mediaLocation': filePath }, { userId, mediaLocation: filePath }
+        { userId, 'seasons.episodes.mediaLocation': filePath },
+        { userId, mediaLocation: filePath },
       ],
       pipeline: mongoMediaSearchPipeline(filePath, userId),
-      
     });
-    if(dbSearchResult){
+    if (dbSearchResult) {
       return dbSearchResult;
     }
-    const basicMetadata =  await extractFileMetadata(filePath);
+    const basicMetadata = await extractFileMetadata(filePath);
     const searchTermList = [basicMetadata.title];
     const mediaEntry = await insertMediaEntry({
       userId,
@@ -42,60 +56,63 @@ export default async function processMediaWorkflow({ userId, mediaId, filePath }
       category: basicMetadata.category ?? 'MOVIE',
     });
 
-    if(!mediaEntry){
+    if (!mediaEntry) {
       return {};
     }
 
     try {
-
-      if(basicMetadata.releaseYear) {
-        searchTermList.push(basicMetadata.releaseYear)
+      if (basicMetadata.releaseYear) {
+        searchTermList.push(basicMetadata.releaseYear);
       }
-      if(basicMetadata.episodeFullMatch) {
+      if (basicMetadata.episodeFullMatch) {
         searchTermList.push(basicMetadata.episodeFullMatch);
       }
       searchTermList.push(basicMetadata.category);
       const searchTerm = searchTermList.join(' ');
-  
+
       const searchResult = await queryBing(searchTerm).catch((err) => {
         console.error(err);
         return null;
       });
-      if(!searchResult){
+      if (!searchResult) {
         return {};
       }
       const resultList = searchResult?.webPages?.value;
-      if(!resultList){
+      if (!resultList) {
         return {};
       }
       const imdbResults = extractImdbEntriesFromBingSearch(resultList);
-      if(!imdbResults.length){
+      if (!imdbResults.length) {
         return {};
       }
       const highestMatch = getClosestMatchingImdbTitleId(imdbResults);
-      if(!highestMatch?.imdbTitleId){
+      if (!highestMatch?.imdbTitleId) {
         return {};
       }
-  
-      if(basicMetadata.episode && basicMetadata.season) {
+
+      if (basicMetadata.episode && basicMetadata.season) {
         const tmdbShowResult = await fetchTmdbEpisodes(highestMatch.imdbTitleId, basicMetadata.season);
-        const updatedTVShowEntry = await insertMetadata(mediaEntry.id, userId, highestMatch.imdbTitleId, tmdbShowResult?.tvShow, tmdbShowResult?.episodes, basicMetadata);
+        const updatedTVShowEntry = await insertMetadata(
+          mediaEntry.id,
+          userId,
+          highestMatch.imdbTitleId,
+          tmdbShowResult?.tvShow,
+          tmdbShowResult?.episodes,
+          basicMetadata,
+        );
         return updatedTVShowEntry || {};
       }
-  
+
       const tmdbResult = await fetchTmdbEntry(highestMatch.imdbTitleId);
       const updatedMediaEntry = await insertMetadata(mediaEntry.id, userId, highestMatch.imdbTitleId, tmdbResult);
       return updatedMediaEntry || {};
-
-    } catch(err) {
+    } catch (err) {
       // rollback transient entry
       await deleteMediaEntry(mediaId);
       return {};
     }
-
-  } catch(err) {
+  } catch (err) {
     console.error(err);
     throw err;
   }
-  
 }

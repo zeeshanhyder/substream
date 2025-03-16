@@ -26,21 +26,18 @@ const createUser = async (user: z.infer<typeof userSchema>): Promise<ServiceResp
 
     const db = databaseInstance.getDb();
     if (!db) {
-      throw new ServiceError(
-        'Database service unavailable',
-        HTTPStatus.SERVICE_UNAVAILABLE
-      );
+      throw new ServiceError('Database service unavailable', HTTPStatus.SERVICE_UNAVAILABLE);
     }
 
     // Check if PersonaUser already exists
-    const existingPersonaUser = await PersonaUser.findOne({ 
-      emailAddress: validatedInput.emailAddress 
+    const existingPersonaUser = await PersonaUser.findOne({
+      emailAddress: validatedInput.emailAddress,
     });
-    
+
     if (existingPersonaUser) {
       return {
         data: existingPersonaUser.toJSON(),
-        status: HTTPStatus.OK
+        status: HTTPStatus.OK,
       };
     }
 
@@ -48,24 +45,23 @@ const createUser = async (user: z.infer<typeof userSchema>): Promise<ServiceResp
     const newPersonaUser = new PersonaUser({
       id: nanoid(),
       ...validatedInput,
-      mediaPathList: []
+      mediaPathList: [],
     });
 
     // Save to MongoDB
     await newPersonaUser.save();
-    
+
     return {
       data: newPersonaUser.toJSON(),
-      status: HTTPStatus.CREATED
+      status: HTTPStatus.CREATED,
     };
-
   } catch (error) {
     if (error instanceof z.ZodError) {
       return {
         data: null,
         error: 'Invalid input data',
         validationErrors: error.errors,
-        status: HTTPStatus.BAD_REQUEST
+        status: HTTPStatus.BAD_REQUEST,
       };
     }
 
@@ -73,7 +69,7 @@ const createUser = async (user: z.infer<typeof userSchema>): Promise<ServiceResp
       return {
         data: null,
         error: error.message,
-        status: error.status
+        status: error.status,
       };
     }
 
@@ -81,7 +77,7 @@ const createUser = async (user: z.infer<typeof userSchema>): Promise<ServiceResp
     return {
       data: null,
       error: 'Internal Server Error',
-      status: HTTPStatus.INTERNAL_SERVER_ERROR
+      status: HTTPStatus.INTERNAL_SERVER_ERROR,
     };
   }
 };

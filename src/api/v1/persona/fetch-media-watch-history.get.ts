@@ -4,11 +4,20 @@ import { HTTPStatus } from '../../../types/service-response';
 import { ServiceError } from '../../../lib/utils';
 import { getMediaWatchHistoryForUser } from '../../../lib/persona';
 
+/**
+ * Zod schema for validating media watch history requests
+ */
 const userWatchSchema = z.object({
   userId: z.string().min(1, 'User ID is required'),
   mediaId: z.string().min(1, 'Media ID is required'),
 });
 
+/**
+ * Express handler for retrieving watch history for a specific media item
+ * @param req - Express request with userId and mediaId in params
+ * @param res - Express response object
+ * @returns ServiceResponse with media watch entry or error details
+ */
 export default async function fetchMediaWatchHistory(
   req: Request<z.infer<typeof userWatchSchema>, {}, {}>,
   res: Response,

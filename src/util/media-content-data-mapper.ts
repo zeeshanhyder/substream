@@ -1,12 +1,20 @@
 import { IntermediateMetadata, MediaMetadata } from '../types/media-metadata';
 import { sanitizeTitle } from './sanitize-title';
 
+/**
+ * Structure representing parsed episode information
+ */
 type EpisodeInfo = {
   fullMatch: string;
   season: string | null;
   episode: string | null;
 };
 
+/**
+ * Extracts season and episode information from a media title
+ * @param title - Media title to parse for episode information
+ * @returns Object containing episode metadata (season, episode numbers, and full match)
+ */
 export const extractEpisodeMetadata = (title: string): EpisodeInfo => {
   // Common episode format patterns
   const episodeFormats = {
@@ -38,6 +46,12 @@ export const extractEpisodeMetadata = (title: string): EpisodeInfo => {
   };
 };
 
+/**
+ * Processes raw media metadata into a standardized intermediate format
+ * @param inputMetadata - Raw metadata from media file
+ * @param filePath - Path to the media file
+ * @returns Structured metadata with title, episode info, and media type
+ */
 export const extractBasicMetadata = (inputMetadata: MediaMetadata, filePath: string): IntermediateMetadata => {
   const videoStream = inputMetadata?.streams?.filter((stream) => stream?.codec_type === 'video')?.[0];
   const formatDetails = inputMetadata?.format;

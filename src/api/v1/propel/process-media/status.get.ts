@@ -3,12 +3,26 @@ import { z } from 'zod';
 import { ServiceError } from '../../../../lib/utils';
 import { HTTPStatus } from '../../../../types/service-response';
 
+/**
+ * Zod schema for validating workflow status requests
+ */
 const workflowStatusSchema = z.object({
   workflowId: z.string().min(1, 'Workflow ID is required'),
 });
 
+/**
+ * Type alias for workflow parameters
+ */
 type WorkflowParams = z.infer<typeof workflowStatusSchema>;
 
+/**
+ * Express handler for retrieving Temporal workflow execution status
+ * @param req - Express request with workflowId in route parameters
+ * @param res - Express response object
+ * @returns JSON response with workflow status details and result data if completed
+ * @throws {ServiceError} When Temporal client is unavailable
+ * @throws {z.ZodError} When request validation fails
+ */
 export default async function getWorkflowStatus(req: Request<WorkflowParams>, res: Response) {
   try {
     const { temporalClient } = req.context;

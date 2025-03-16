@@ -3,10 +3,19 @@ import { z } from 'zod';
 import { getUser } from '../../../lib/persona';
 import { ServiceError } from '../../../lib/utils';
 
+/**
+ * Zod schema for validating watch session creation requests
+ */
 const userSchema = z.object({
   userId: z.string().min(1, 'User ID is required'),
 });
 
+/**
+ * Express handler for creating a new watch session for a user
+ * @param req - Express request with userId in params
+ * @param res - Express response object
+ * @returns ServiceResponse with user data or error details
+ */
 const createWatchSession = async (req: Request<z.infer<typeof userSchema>, {}, {}>, res: Response) => {
   try {
     // Get user ID from request params or query

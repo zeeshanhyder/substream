@@ -23,7 +23,7 @@ export async function queryDB(query: RootFilterQueryWithPipeline<IMediaEntity>):
     if (query.pipeline) {
       const result = await MediaEntityModel.aggregate(query.pipeline);
       const aggregateResult = result[0];
-      if(aggregateResult) {
+      if (aggregateResult) {
         console.log('INFO: Found metadata in DB via aggregate');
         return aggregateResult;
       }

@@ -1,18 +1,18 @@
-import { ServiceError } from "@temporalio/client";
-import { HTTPStatus, ServiceResponse } from "../../../types/service-response";
-import { z, ZodError } from "zod";
-import { databaseInstance } from "../../mongoose-client";
-import { IMediaEntity, MediaEntityModel } from "../../../models/media-entity";
-import { mongoMediaSearchPipelineByUserId } from "../../utils";
+import { ServiceError } from '@temporalio/client';
+import { HTTPStatus, ServiceResponse } from '../../../types/service-response';
+import { z, ZodError } from 'zod';
+import { databaseInstance } from '../../mongoose-client';
+import { IMediaEntity, MediaEntityModel } from '../../../models/media-entity';
+import { mongoMediaSearchPipelineByUserId } from '../../utils';
 
 const getUserMediaSchema = z.object({
-    userId: z.string().min(1, 'User ID is required'),
-    mediaId: z.string().min(1, 'Media ID is required'),
+  userId: z.string().min(1, 'User ID is required'),
+  mediaId: z.string().min(1, 'Media ID is required'),
 });
 
 type UserMediaResult = Partial<{
-    parent?: IMediaEntity;
-    result?: IMediaEntity;
+  parent?: IMediaEntity;
+  result?: IMediaEntity;
 }>;
 
 /**
@@ -22,35 +22,35 @@ type UserMediaResult = Partial<{
  * @throws {ServiceError} - For database issues or unexpected errors
  */
 export default async function getUserMedia(
-  userMediaSchema: z.infer<typeof getUserMediaSchema>
+  userMediaSchema: z.infer<typeof getUserMediaSchema>,
 ): Promise<ServiceResponse<IMediaEntity | null>> {
-    try {
-        const db = databaseInstance.getDb();
-        if (!db) {
-          return {
-            data: null,
-            error: 'Database connection unavailable',
-            status: HTTPStatus.SERVICE_UNAVAILABLE
-          };
-        }
-        const safeGetUserMediaSchema = getUserMediaSchema.safeParse(userMediaSchema);
-        if(!safeGetUserMediaSchema.success) {
-            throw new ZodError(safeGetUserMediaSchema.error.issues);
-        }
-        const safeUserId = safeGetUserMediaSchema.data.userId;
-        const safeMediaId = safeGetUserMediaSchema.data.mediaId
-
-        const pipeline = mongoMediaSearchPipelineByUserId(safeUserId, safeMediaId)
-        const mediaResult = await MediaEntityModel.aggregate<UserMediaResult>(pipeline);
-        let media!: IMediaEntity | null;
-        if(mediaResult.length > 0) {
-            media = mediaResult[0]?.result ?? null;
-        };
-        return {
-            data: media,
-            status: HTTPStatus.OK
-        };
-    } catch (err) {
-        throw new ServiceError(err instanceof Error ? err.message : 'Unknown error');
+  try {
+    const db = databaseInstance.getDb();
+    if (!db) {
+      return {
+        data: null,
+        error: 'Database connection unavailable',
+        status: HTTPStatus.SERVICE_UNAVAILABLE,
+      };
     }
+    const safeGetUserMediaSchema = getUserMediaSchema.safeParse(userMediaSchema);
+    if (!safeGetUserMediaSchema.success) {
+      throw new ZodError(safeGetUserMediaSchema.error.issues);
+    }
+    const safeUserId = safeGetUserMediaSchema.data.userId;
+    const safeMediaId = safeGetUserMediaSchema.data.mediaId;
+
+    const pipeline = mongoMediaSearchPipelineByUserId(safeUserId, safeMediaId);
+    const mediaResult = await MediaEntityModel.aggregate<UserMediaResult>(pipeline);
+    let media!: IMediaEntity | null;
+    if (mediaResult.length > 0) {
+      media = mediaResult[0]?.result ?? null;
+    }
+    return {
+      data: media,
+      status: HTTPStatus.OK,
+    };
+  } catch (err) {
+    throw new ServiceError(err instanceof Error ? err.message : 'Unknown error');
+  }
 }
