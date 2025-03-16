@@ -4,10 +4,19 @@ import { HTTPStatus } from '../../../types/service-response';
 import { ServiceError } from '../../../lib/utils';
 import { getWatchHistory } from '../../../lib/persona';
 
+/**
+ * Zod schema for validating user watch history requests
+ */
 const userWatchHistorySchema = z.object({
   userId: z.string().min(1, 'User ID is required'),
 });
 
+/**
+ * Express handler for retrieving a user's complete watch history
+ * @param req - Express request with userId in params
+ * @param res - Express response object
+ * @returns ServiceResponse with user's watch history or error details
+ */
 export default async function fetchUserWatchHistory(
   req: Request<z.infer<typeof userWatchHistorySchema>, {}, {}>,
   res: Response,

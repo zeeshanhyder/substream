@@ -1,5 +1,5 @@
-import { MediaEntityModel } from "../../models/media-entity";
-import { databaseInstance } from "../mongoose-client";
+import { MediaEntityModel } from '../../models/media-entity';
+import { databaseInstance } from '../mongoose-client';
 
 /**
  * Deletes a media entry from the database using its unique identifier
@@ -9,11 +9,11 @@ import { databaseInstance } from "../mongoose-client";
  */
 export async function deleteMediaEntry(mediaEntryId: string) {
   const db = databaseInstance.getDb();
-  if(!db) {
+  if (!db) {
     console.error('No MongoDB instance available');
     return;
   }
-  const res = await MediaEntityModel.deleteOne({ id : mediaEntryId });
+  const res = await MediaEntityModel.deleteOne({ id: mediaEntryId });
   console.log('INFO: Deleted media entry with id: ' + mediaEntryId);
   return res;
 }

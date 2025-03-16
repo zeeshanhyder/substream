@@ -4,6 +4,9 @@ import { createUser } from '../../../lib/persona';
 import { ServiceError } from '../../../lib/utils';
 import { imageToBase64 } from '../../utils';
 
+/**
+ * Zod schema for user creation request validation
+ */
 const userSchema = z.object({
   fullName: z.string().min(1, 'Name is required'),
   emailAddress: z.string().email('Invalid email format'),
@@ -11,6 +14,14 @@ const userSchema = z.object({
   homeDirectory: z.string().min(1, 'Home directory is required'),
 });
 
+/**
+ * Express handler for creating new Persona users
+ * @param req - Express request with user data in body
+ * @param res - Express response object
+ * @returns ServiceResponse with created user or error details
+ * @throws {ServiceError} For database issues or validation failures
+ * @throws {ZodError} For invalid input format
+ */
 const createUserHandler = async (req: Request<{}, {}, z.infer<typeof userSchema>>, res: Response) => {
   try {
     const result = userSchema.safeParse(req.body);

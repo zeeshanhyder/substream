@@ -5,11 +5,22 @@ import { HTTPStatus } from '../../../../types/service-response';
 import { getUserMediaById } from '../../../../lib/persona';
 import { z, ZodError } from 'zod';
 
+/**
+ * Zod schema for validating media streaming requests
+ */
 const mediaFetchSchema = z.object({
   userId: z.string().nanoid().min(1, 'User ID is required'),
   mediaId: z.string().nanoid().min(1, 'Media ID is required'),
 });
 
+/**
+ * Express handler for streaming media content with byte range support
+ * @param req - Express request with userId and mediaId in params, range in headers
+ * @param res - Express response object for streaming video content
+ * @returns Video stream with appropriate headers for range requests
+ * @throws {ServiceError} When media not found or access denied
+ * @throws {ZodError} When request validation fails
+ */
 export default async function streamMedia(req: Request<z.infer<typeof mediaFetchSchema>, {}, {}>, res: Response) {
   try {
     const { userId, mediaId } = req.params;

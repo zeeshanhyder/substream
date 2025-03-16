@@ -1,5 +1,5 @@
-import { IMediaEntity, MediaEntityModel } from "../../models/media-entity";
-import { databaseInstance } from "../mongoose-client";
+import { IMediaEntity, MediaEntityModel } from '../../models/media-entity';
+import { databaseInstance } from '../mongoose-client';
 
 /**
  * Creates a new media entry in the database with basic metadata
@@ -13,15 +13,15 @@ import { databaseInstance } from "../mongoose-client";
  * @throws {ApplicationFailure} If database connection fails
  */
 export async function insertMediaEntry(
-    mediaEntry: Pick<IMediaEntity, 'id' | 'mediaTitle' | 'mediaLocation' | 'metadata' | 'category' | 'userId'>,
-  ): Promise<IMediaEntity | null> {
-    const db = databaseInstance.getDb();
-    if (!db) {
-      console.error('No MongoDB instance available');
-      return null;
-    }
-    const mediaEntity = new MediaEntityModel(mediaEntry);
-    const savedMediaEntry = await mediaEntity.save();
-    console.log('INFO: Media entry created');
-    return savedMediaEntry.toJSON() as IMediaEntity;
+  mediaEntry: Pick<IMediaEntity, 'id' | 'mediaTitle' | 'mediaLocation' | 'metadata' | 'category' | 'userId'>,
+): Promise<IMediaEntity | null> {
+  const db = databaseInstance.getDb();
+  if (!db) {
+    console.error('No MongoDB instance available');
+    return null;
   }
+  const mediaEntity = new MediaEntityModel(mediaEntry);
+  const savedMediaEntry = await mediaEntity.save();
+  console.log('INFO: Media entry created');
+  return savedMediaEntry.toJSON() as IMediaEntity;
+}

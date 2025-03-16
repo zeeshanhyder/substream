@@ -1,12 +1,12 @@
-import { nanoid } from "nanoid";
-import { IMediaEntity, MediaEntityModel } from "../../models/media-entity";
-import { IntermediateMetadata } from "../../types/media-metadata";
-import { TmdbSeasonResult, TmdbTVShowShape } from "../../types/tmdb-find-results";
-import { mapEpisodeToMediaEntry } from "../../util/filter-tmdb-result";
-import { databaseInstance } from "../mongoose-client";
-import { insertMediaMetadata } from "./insert-media-metadata-activity";
-import { queryDB } from "./query-db-activity";
-import { insertMediaEntry } from "./insert-media-entry-activity";
+import { nanoid } from 'nanoid';
+import { IMediaEntity, MediaEntityModel } from '../../models/media-entity';
+import { IntermediateMetadata } from '../../types/media-metadata';
+import { TmdbSeasonResult, TmdbTVShowShape } from '../../types/tmdb-find-results';
+import { mapEpisodeToMediaEntry } from '../../util/filter-tmdb-result';
+import { databaseInstance } from '../mongoose-client';
+import { insertMediaMetadata } from './insert-media-metadata-activity';
+import { queryDB } from './query-db-activity';
+import { insertMediaEntry } from './insert-media-entry-activity';
 import { ApplicationFailure } from '@temporalio/activity';
 
 /**
@@ -55,14 +55,17 @@ export async function insertEpisodesMetadata(
     const seasonNumberFormatted = Number(seasonNumber);
     const episodeNumberFormatted = Number(episodeNumber);
 
-    let currentSeason: {
-      id: string;
-      name: string;
-      shortName: string;
-      summary: string;
-      seasonNumber: number;
-      episodes: Array<IMediaEntity>;
-    } | null | undefined;
+    let currentSeason:
+      | {
+          id: string;
+          name: string;
+          shortName: string;
+          summary: string;
+          seasonNumber: number;
+          episodes: Array<IMediaEntity>;
+        }
+      | null
+      | undefined;
     let currentEpisode: IMediaEntity | undefined | null;
 
     let tvShow = await queryDB({ 'metadata.tmdbId': String(tmdbResult?.id ?? ''), userId });
@@ -79,13 +82,17 @@ export async function insertEpisodesMetadata(
     if (tvShow) {
       console.log('INFO: TV show already present in DB');
       currentSeason = (tvShow.seasons ?? []).find((season) => season.seasonNumber === seasonNumberFormatted);
-      currentEpisode = currentSeason?.episodes?.find(
-        (episode) => episode.episodeNumber === episodeNumberFormatted,
-      );
+      currentEpisode = currentSeason?.episodes?.find((episode) => episode.episodeNumber === episodeNumberFormatted);
     } else {
       console.log('INFO: TV show not present in DB. Creating new entry');
       const tvShowId = nanoid();
-      tvShow = await insertMediaEntry({ id: tvShowId, mediaTitle: tmdbResult?.name ?? '', mediaLocation: '', category: 'TV', userId });
+      tvShow = await insertMediaEntry({
+        id: tvShowId,
+        mediaTitle: tmdbResult?.name ?? '',
+        mediaLocation: '',
+        category: 'TV',
+        userId,
+      });
       tvShow = await insertMediaMetadata(tvShowId, userId, imdbId, tmdbResult);
     }
 
@@ -122,7 +129,7 @@ export async function insertEpisodesMetadata(
           res = await MediaEntityModel.findOneAndUpdate(
             { id: tvShow?.id ?? '' },
             { seasons: updatedSeasons },
-            { new: true }
+            { new: true },
           );
           await MediaEntityModel.deleteOne({ id: mediaId });
         } catch (error: unknown) {
@@ -135,7 +142,7 @@ export async function insertEpisodesMetadata(
           });
         }
         console.log('INFO: Episode entry created');
-        return res ? res.toJSON() as IMediaEntity : null;
+        return res ? (res.toJSON() as IMediaEntity) : null;
       } else {
         console.log('INFO: Episode already present in DB. Not adding again.');
         // remove transient entry
@@ -153,16 +160,18 @@ export async function insertEpisodesMetadata(
         shortName: tmdbSeasonResult.name ?? '',
         summary: tmdbSeasonResult.overview ?? '',
         seasonNumber: seasonNumberFormatted,
-        episodes: [mapEpisodeToMediaEntry(
-          mediaId,
-          userId,
-          imdbId,
-          currentlySavedEpisodeData,
-          basicMetadata,
-          episodeNumberFormatted,
-          seasonNumberFormatted,
-          filterAvailableEpisodeMetadata?.[0],
-        )],
+        episodes: [
+          mapEpisodeToMediaEntry(
+            mediaId,
+            userId,
+            imdbId,
+            currentlySavedEpisodeData,
+            basicMetadata,
+            episodeNumberFormatted,
+            seasonNumberFormatted,
+            filterAvailableEpisodeMetadata?.[0],
+          ),
+        ],
       };
       const existingSeasons = tvShow?.seasons ?? [];
       existingSeasons?.push(newSeasonEntry);
@@ -171,10 +180,10 @@ export async function insertEpisodesMetadata(
       const updatedEntry = await MediaEntityModel.findOneAndUpdate(
         { id: tvShow?.id ?? '' },
         { seasons: existingSeasons },
-        { new: true }
+        { new: true },
       );
       console.log('INFO: Season and episode entry created');
-      return updatedEntry ? updatedEntry.toJSON() as IMediaEntity : null;
+      return updatedEntry ? (updatedEntry.toJSON() as IMediaEntity) : null;
     }
   } catch (error) {
     if (error instanceof ApplicationFailure) {
@@ -184,7 +193,7 @@ export async function insertEpisodesMetadata(
     throw ApplicationFailure.create({
       message: `Episode metadata insertion failed: ${isGenericError ? error.message : 'Unknown error'}`,
       type: 'UNKNOWN_ERROR',
-      cause: isGenericError ? error :  new Error('Unknown error'),
+      cause: isGenericError ? error : new Error('Unknown error'),
       nonRetryable: false,
     });
   }

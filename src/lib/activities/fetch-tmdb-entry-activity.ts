@@ -12,7 +12,7 @@ export async function fetchTmdbEntry(imdbTitleId: string) {
     console.log('INFO: Fetching TMDB entry for IMDB title ID:', imdbTitleId);
     const tmdbResult = await getTitleFromImdbTitleId(imdbTitleId);
     const { tmdbId, mediaType } = filterTmdbResult(tmdbResult);
-    if(!tmdbId){
+    if (!tmdbId) {
       console.log('ERROR: Failed to fetch TMDB ID from IMDb ID');
       return undefined;
     }

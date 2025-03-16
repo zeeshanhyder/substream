@@ -1,6 +1,6 @@
-import { IWatchHistoryEntry, UserWatchHistoryModel } from "../../../models/watch-history";
-import { HTTPStatus, ServiceResponse } from "../../../types/service-response";
-import { databaseInstance } from "../../mongoose-client";
+import { IWatchHistoryEntry, UserWatchHistoryModel } from '../../../models/watch-history';
+import { HTTPStatus, ServiceResponse } from '../../../types/service-response';
+import { databaseInstance } from '../../mongoose-client';
 
 /**
  * Retrieves paginated watch history for a user
@@ -12,7 +12,7 @@ import { databaseInstance } from "../../mongoose-client";
 export default async function getUserWatchHistory(
   userId: string,
   limit = 20,
-  skip = 0
+  skip = 0,
 ): Promise<ServiceResponse<IWatchHistoryEntry[] | null>> {
   try {
     const db = databaseInstance.getDb();
@@ -20,32 +20,31 @@ export default async function getUserWatchHistory(
       return {
         data: null,
         error: 'Database connection unavailable',
-        status: HTTPStatus.SERVICE_UNAVAILABLE
+        status: HTTPStatus.SERVICE_UNAVAILABLE,
       };
     }
 
-    const result = await UserWatchHistoryModel.findOne(
-      { userId },
-      { history: { $slice: [skip, limit] } }
-    ).sort({ 'history.watchedAt': -1 });
+    const result = await UserWatchHistoryModel.findOne({ userId }, { history: { $slice: [skip, limit] } }).sort({
+      'history.watchedAt': -1,
+    });
 
     if (!result) {
       return {
         data: [],
-        status: HTTPStatus.OK
+        status: HTTPStatus.OK,
       };
     }
 
     return {
       data: result.history,
-      status: HTTPStatus.OK
+      status: HTTPStatus.OK,
     };
   } catch (error) {
     console.error('[ERROR]: Error fetching watch history:', error);
     return {
       data: null,
       error: 'Internal Server Error',
-      status: HTTPStatus.INTERNAL_SERVER_ERROR
+      status: HTTPStatus.INTERNAL_SERVER_ERROR,
     };
   }
 }

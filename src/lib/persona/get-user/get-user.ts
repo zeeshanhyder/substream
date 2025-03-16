@@ -7,6 +7,9 @@ import { z } from 'zod';
 /**
  * Zod schema for validating user login credentials
  */
+/**
+ * Zod schema for user ID validation
+ */
 const loginSchema = z.object({
   userId: z.string().nanoid('Invalid user id format'),
 });
@@ -26,36 +29,29 @@ const getUser = async (credentials: z.infer<typeof loginSchema>): Promise<Servic
     // Database connection check
     const db = databaseInstance.getDb();
     if (!db) {
-      throw new ServiceError(
-        'Database service unavailable',
-        HTTPStatus.SERVICE_UNAVAILABLE
-      );
+      throw new ServiceError('Database service unavailable', HTTPStatus.SERVICE_UNAVAILABLE);
     }
 
     // Find user by email
-    const user = await PersonaUser.findOne({ 
-      id: validatedInput.userId 
+    const user = await PersonaUser.findOne({
+      id: validatedInput.userId,
     }).select('-password -refreshToken'); // Exclude sensitive data
 
     if (!user) {
-      throw new ServiceError(
-        'User not found',
-        HTTPStatus.NOT_FOUND,
-      );
+      throw new ServiceError('User not found', HTTPStatus.NOT_FOUND);
     }
 
     return {
       data: user.toJSON(),
-      status: HTTPStatus.OK
+      status: HTTPStatus.OK,
     };
-
   } catch (error) {
     if (error instanceof z.ZodError) {
       return {
         data: null,
         error: 'Invalid input data',
         validationErrors: error.errors,
-        status: HTTPStatus.BAD_REQUEST
+        status: HTTPStatus.BAD_REQUEST,
       };
     }
 
@@ -63,7 +59,7 @@ const getUser = async (credentials: z.infer<typeof loginSchema>): Promise<Servic
       return {
         data: null,
         error: error.message,
-        status: error.status
+        status: error.status,
       };
     }
 
@@ -71,7 +67,7 @@ const getUser = async (credentials: z.infer<typeof loginSchema>): Promise<Servic
     return {
       data: null,
       error: 'Internal Server Error',
-      status: HTTPStatus.INTERNAL_SERVER_ERROR
+      status: HTTPStatus.INTERNAL_SERVER_ERROR,
     };
   }
 };

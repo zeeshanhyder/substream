@@ -9,8 +9,8 @@ import { HTTPStatus, ServiceResponse } from '../../../types/service-response';
  * @returns ServiceResponse with new history entry or error
  */
 export default async function addToWatchHistory(
-  userId: string, 
-  watchEntry: Omit<IWatchHistoryEntry, 'watchedAt'>
+  userId: string,
+  watchEntry: Omit<IWatchHistoryEntry, 'watchedAt'>,
 ): Promise<ServiceResponse<IWatchHistoryEntry | null>> {
   try {
     const db = databaseInstance.getDb();
@@ -18,7 +18,7 @@ export default async function addToWatchHistory(
       return {
         data: null,
         error: 'Database connection unavailable',
-        status: HTTPStatus.SERVICE_UNAVAILABLE
+        status: HTTPStatus.SERVICE_UNAVAILABLE,
       };
     }
 
@@ -30,36 +30,36 @@ export default async function addToWatchHistory(
     // Update or create watch history document
     const result = await UserWatchHistoryModel.findOneAndUpdate(
       { userId },
-      { 
-        $push: { 
+      {
+        $push: {
           history: {
             $each: [entry],
             $position: 0, // Add to beginning of array
-            $slice: 1000 // Limit history to 1000 entries
-          }
-        }
+            $slice: 1000, // Limit history to 1000 entries
+          },
+        },
       },
-      { upsert: true, new: true }
+      { upsert: true, new: true },
     );
 
     if (!result) {
       return {
         data: null,
         error: 'Failed to update watch history',
-        status: HTTPStatus.INTERNAL_SERVER_ERROR
+        status: HTTPStatus.INTERNAL_SERVER_ERROR,
       };
     }
 
     return {
       data: result.history[0],
-      status: HTTPStatus.CREATED
+      status: HTTPStatus.CREATED,
     };
   } catch (error) {
     console.error('[ERROR]: Error updating watch history:', error);
     return {
       data: null,
       error: 'Internal Server Error',
-      status: HTTPStatus.INTERNAL_SERVER_ERROR
+      status: HTTPStatus.INTERNAL_SERVER_ERROR,
     };
   }
 }
