@@ -1,93 +1,207 @@
-# HF Media Processor
+# Substream Media Processor
 
+## Overview
 
+Substream Media Processor is a media management system that processes, organizes, and streams media files. It uses Temporal for workflow orchestration, MongoDB for data storage, and Express for API endpoints. The system is designed to scan directories for media files, extract metadata, and provide streaming capabilities.
 
-## Getting started
+## Architecture
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+The application consists of three main components:
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+1. **Injest** - Handles media file discovery and importing
+2. **Propel** - Processes media files and provides streaming capabilities
+3. **Persona** - Manages user data and watch history
 
-## Add your files
+## API Routes
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+### Injest API
+
+Endpoints for scanning and importing media files.
+
+#### Scan Directory Recursively for Media Files (mp4/mkv)
 
 ```
-cd existing_repo
-git remote add origin https://gitlab.com/hf-core/hf-media-processor.git
-git branch -M main
-git push -uf origin main
+POST /v1/injest/scan
 ```
 
-## Integrate with your tools
+**Request Body:**
 
-- [ ] [Set up project integrations](https://gitlab.com/hf-core/hf-media-processor/-/settings/integrations)
+```json
+{
+  "directory": "/path/to/media/files"
+}
+```
 
-## Collaborate with your team
+**Response:**
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+```json
+{
+  "status": "SUCCESS",
+  "filesProcessed": 10
+}
+```
 
-## Test and Deploy
+### Propel API
 
-Use the built-in continuous integration in GitLab.
+Endpoints for processing and streaming media.
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+#### Process Media
 
-***
+```
+POST /v1/propel/process
+```
 
-# Editing this README
+**Request Body:**
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+```json
+{
+  "filePath": "/path/to/media/file.mp4"
+}
+```
 
-## Suggestions for a good README
+**Response:**
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+```json
+{
+  "status": "STARTED",
+  "workflowId": "abc123",
+  "runId": "xyz789"
+}
+```
 
-## Name
-Choose a self-explaining name for your project.
+#### Get Workflow Status
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+```
+GET /v1/propel/process/status/:workflowId
+```
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+**Response:**
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+```json
+{
+  "status": "COMPLETED",
+  "workflowId": "abc123",
+  "runId": "xyz789",
+  "taskQueue": "process-media",
+  "pendingTasks": [],
+  "data": {
+    /* Media metadata */
+  }
+}
+```
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+#### Stream Media
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+```
+GET /v1/propel/stream/:userId/:mediaId
+```
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+Streams the media file with proper HTTP range support for video players.
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+### Persona API
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+Endpoints for user management and watch history.
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+#### User Management
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+```
+GET /v1/persona/users
+POST /v1/persona/user
+```
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+**Create User Request Body:**
 
-## License
-For open source projects, say how it is licensed.
+```json
+{
+  "name": "User Name",
+  "email": "user@example.com"
+}
+```
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+#### Watch History
+
+```
+GET /v1/persona/:userId/watch/:mediaId
+GET /v1/persona/:userId/watch
+POST /v1/persona/:userId/watch/:mediaId
+```
+
+**Update Watch History Request Body:**
+
+```json
+{
+  "position": 120,
+  "duration": 3600
+}
+```
+
+#### User Media
+
+```
+GET /v1/persona/:userId/media
+```
+
+**Query Parameters:**
+
+```
+category=MOVIE|TV
+```
+
+## Media Processing with Temporal
+
+The application uses Temporal for reliable workflow orchestration. The media processing workflow includes:
+
+1. **File Discovery** - Scanning directories for media files
+2. **Metadata Extraction** - Parsing filenames for basic metadata
+3. **External Enrichment** - Fetching additional metadata from TMDB/IMDB
+4. **Database Storage** - Storing processed media information
+5. **Streaming Preparation** - Making media ready for streaming
+
+### Running Temporal
+
+1. Start the Temporal server:
+
+```bash
+temporal server start-dev
+```
+
+2. Start the application:
+
+```bash
+npm install
+npm run start
+```
+
+### Workflow Details
+
+The `processMediaWorkflow` handles:
+
+- Checking if media already exists in the database
+- Extracting basic metadata from filenames
+- Searching for additional metadata using external APIs
+- Storing complete metadata in MongoDB
+- Handling TV shows with seasons and episodes
+- Error handling and rollback for failed processing
+
+## Development Setup
+
+### Prerequisites
+
+- Node.js 22+
+- [Temporal Server CLI](https://github.com/temporalio/cli?tab=readme-ov-file#quick-install)
+
+### Installation
+
+1. Install dependencies:
+
+```bash
+npm install
+```
+
+2. Start the Temporal server & Substream Application bundle:
+
+```bash
+npm run startd
+```
+
+4. The server will be available at the displayed IP address and port (default: `localhost:7455`)
