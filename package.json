@@ -1,7 +1,12 @@
 {
-  "name": "temporal-hello-world",
-  "version": "0.1.0",
-  "private": true,
+  "name": "@hf/substream",
+  "version": "0.5.0",
+  "private": false,
+  "author": {
+    "email": "bzeeshanhyder@gmail.com",
+    "name": "Zeeshan H. Bhat",
+    "url": "https://github.com/zeeshanhyder"
+  },
   "scripts": {
     "build": "tsc --build",
     "build.watch": "tsc --build --watch",
@@ -38,9 +43,9 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
-    "@temporalio/testing": "^1.11.6",
-    "@tsconfig/node18": "^18.2.4",
-    "@types/mocha": "8.x",
+    "@temporalio/testing": "^1.11.7",
+    "@tsconfig/node22": "^22.0.0",
+    "@types/mocha": "10.x",
     "@types/node": "^22.13.4",
     "@typescript-eslint/eslint-plugin": "^8.18.0",
     "@typescript-eslint/parser": "^8.18.0",
@@ -51,6 +56,6 @@
     "nodemon": "^3.1.7",
     "prettier": "^3.4.2",
     "ts-node": "^10.9.2",
-    "typescript": "^5.6.3"
+    "typescript": "^5.8.2"
   }
 }
