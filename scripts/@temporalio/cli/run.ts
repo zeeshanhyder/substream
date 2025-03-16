@@ -23,4 +23,4 @@ export default function run(command: string) {
   }
 }
 
-run(`temporal server start-dev --db-filename hf-workflow-data --port 6456`);
+run(`mkdir -p .temporal && temporal server start-dev --db-filename .temporal/hf-workflow-data --port 6456`);
