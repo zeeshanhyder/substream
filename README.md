@@ -174,6 +174,22 @@ The `processMediaWorkflow` handles:
 
 - Node.js 22+
 - [Temporal Server CLI](https://github.com/temporalio/cli?tab=readme-ov-file#quick-install)
+- Google Search & Knowledge Graph API Key
+- Bing Search Engine Key
+- TMDB API Key
+- MongoDB Username and Password
+
+### Environment Variables
+
+Set the following environment variables in a `.env` file:
+
+> Use `.env.example` as a template
+
+```bash
+GOOGLE_SEARCH_API_KEY=your_google_api_key
+BING_SEARCH_API_KEY=your_bing_api_key
+TMDB_API_KEY=your_tmdb_api_key
+```
 
 ### Installation
 
