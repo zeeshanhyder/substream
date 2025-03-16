@@ -157,21 +157,6 @@ The application uses Temporal for reliable workflow orchestration. The media pro
 4. **Database Storage** - Storing processed media information
 5. **Streaming Preparation** - Making media ready for streaming
 
-### Running Temporal
-
-1. Start the Temporal server:
-
-```bash
-temporal server start-dev
-```
-
-2. Start the application:
-
-```bash
-npm install
-npm run start
-```
-
 ### Workflow Details
 
 The `processMediaWorkflow` handles:
@@ -183,7 +168,7 @@ The `processMediaWorkflow` handles:
 - Handling TV shows with seasons and episodes
 - Error handling and rollback for failed processing
 
-## Development Setup
+## Development & Running
 
 ### Prerequisites
 
@@ -204,4 +189,10 @@ npm install
 npm run startd
 ```
 
-4. The server will be available at the displayed IP address and port (default: `localhost:7455`)
+3. The server will be available at the displayed IP address and port (default: `localhost:7455`)
+
+4. To stop all servers, run:
+
+```bash
+npm run stopd
+```
