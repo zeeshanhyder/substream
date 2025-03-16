@@ -1,5 +1,5 @@
 node_modules
 .env
 .temporal
-/src/types/lib
+**src/types/lib
 /lib
