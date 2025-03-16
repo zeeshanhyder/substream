@@ -5,10 +5,29 @@ import { PersonaUser } from '../../../../models/user-entity';
 import { ServiceError } from '../../../../lib/utils';
 import { batchProcess, getMediaFileList } from '../utils';
 
+/**
+ * Zod schema for validating scan directory requests
+ */
 const schema = z.object({
+  /** Unique identifier of the user initiating the scan */
   userId: z.string().min(1),
 });
 
+/**
+ * Handles directory scanning and media processing initiation
+ * @param req - Express request object containing user ID in body
+ * @param res - Express response object for sending results
+ * @returns JSON response with operation status and media file list
+ * @throws {ServiceError} - For missing Temporal client or user not found
+ * @throws {ZodError} - For invalid request body format
+ *
+ * @example
+ * Successful response:
+ * {
+ *   status: 'MEDIA_PROCESS_STARTED',
+ *   mediaFiles: ['/media/movie1.mp4', '/media/show1.mkv']
+ * }
+ */
 export default async function scanDirectory(req: Request<{}, {}, z.infer<typeof schema>>, res: Response) {
   try {
     const { body } = req;

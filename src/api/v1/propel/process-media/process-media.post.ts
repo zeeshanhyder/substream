@@ -3,10 +3,21 @@ import { z } from 'zod';
 import { ServiceError } from '../../../../lib/utils';
 import { HTTPStatus } from '../../../../types/service-response';
 
+/**
+ * Zod schema for validating media processing requests
+ */
 const processMediaSchema = z.object({
   filePath: z.string().min(1, 'File path is required'),
 });
 
+/**
+ * Express handler for initiating media processing workflows
+ * @param req - Express request with file path in body
+ * @param res - Express response object
+ * @returns JSON response with workflow status and identifiers
+ * @throws {ServiceError} When Temporal client is unavailable
+ * @throws {z.ZodError} When request validation fails
+ */
 export default async function processMedia(req: Request<{}, {}, z.infer<typeof processMediaSchema>>, res: Response) {
   try {
     const { temporalClient } = req.context;

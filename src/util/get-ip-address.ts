@@ -1,4 +1,9 @@
 import os from 'node:os';
+
+/**
+ * Retrieves the local non-internal IPv4 address of the machine
+ * @returns The local IP address string or fallback message if not found
+ */
 export function getLocalIPAddress() {
   const networkInterfaces = os.networkInterfaces();
 

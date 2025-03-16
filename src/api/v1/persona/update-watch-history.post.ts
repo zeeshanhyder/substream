@@ -6,16 +6,28 @@ import { addToWatchHistory } from '../../../lib/persona';
 import { IWatchHistoryEntry } from '../../../models/watch-history';
 import { HTTPStatus } from '../../../types/service-response';
 
+/**
+ * Zod schema for validating user and media parameters
+ */
 const userSchema = z.object({
   userId: z.string().min(1, 'User ID is required'),
   mediaId: z.string().min(1, 'Media ID is required'),
 });
 
+/**
+ * Zod schema for validating watch history entry data
+ */
 const watchSchema = z.object({
   watchDuration: z.number().min(0, 'Duration cannot be less than zero'), // in seconds
   progress: z.number().min(0, 'Progress cannot be less than zero'), // percentage 0-100
 });
 
+/**
+ * Express handler for updating a user's watch history for a specific media item
+ * @param req - Express request with userId and mediaId in params, watch entry in body
+ * @param res - Express response object
+ * @returns ServiceResponse with updated watch history or error details
+ */
 const updateWatchHistory = async (
   req: Request<z.infer<typeof userSchema>, {}, { watchEntry: z.infer<typeof watchSchema> }>,
   res: Response,
