@@ -1,0 +1,56 @@
+{
+  "name": "temporal-hello-world",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "tsc --build",
+    "build.watch": "tsc --build --watch",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint .",
+    "start": "node --env-file=.env -r ts-node/register src/index.ts",
+    "startd": "./node_modules/pm2/bin/pm2 start ecosystem.config.js && ./node_modules/pm2/bin/pm2 logs",
+    "stopd": "./node_modules/pm2/bin/pm2 stop ecosystem.config.js",
+    "temporal-server": "ts-node scripts/@temporalio/cli/run.ts",
+    "start.watch": "nodemon node --env-file=.env -r ts-node src/index.ts",
+    "test": "mocha --exit --require ts-node/register --require source-map-support/register test/**/*.test.ts"
+  },
+  "nodemonConfig": {
+    "execMap": {
+      "ts": "ts-node"
+    },
+    "ext": "ts",
+    "watch": [
+      "src"
+    ]
+  },
+  "dependencies": {
+    "@temporalio/activity": "^1.11.6",
+    "@temporalio/client": "^1.11.6",
+    "@temporalio/worker": "^1.11.6",
+    "@temporalio/workflow": "^1.11.6",
+    "@types/express": "^5.0.0",
+    "@types/mongoose": "^5.11.96",
+    "express": "^5.0.1",
+    "mongoose": "^8.10.1",
+    "nanoid": "3.x",
+    "pm2": "^6.0.5",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@temporalio/testing": "^1.11.6",
+    "@tsconfig/node18": "^18.2.4",
+    "@types/mocha": "8.x",
+    "@types/node": "^22.13.4",
+    "@typescript-eslint/eslint-plugin": "^8.18.0",
+    "@typescript-eslint/parser": "^8.18.0",
+    "eslint": "^8.57.1",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-deprecation": "^3.0.0",
+    "mocha": "8.x",
+    "nodemon": "^3.1.7",
+    "prettier": "^3.4.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3"
+  }
+}
