@@ -1,0 +1,11 @@
+export { extractFileMetadata } from './extract-file-metadata-activity';
+export { queryBing } from './query-bing-activity';
+export { queryDB } from './query-db-activity';
+export { fetchTmdbEntry } from './fetch-tmdb-entry-activity';
+export { fetchTmdbEpisodes } from './fetch-tmdb-episodes-activity';
+export { queryGoogleKG } from './query-google-kg-activity';
+export { insertMetadata } from './insert-metadata-activity';
+export { insertMediaEntry } from './insert-media-entry-activity';
+export { insertMediaMetadata } from './insert-media-metadata-activity';
+export { insertEpisodesMetadata } from './insert-episode-metadata-activity';
+export { deleteMediaEntry } from './delete-media-entry-activity';
