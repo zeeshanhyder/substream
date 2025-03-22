@@ -7,20 +7,20 @@ describe('extractEpisodeMetadata', () => {
     const input = 'Example Series Season 1 Episode 01';
     const expectedOutput = 'Season 1 Episode 01';
     const result = extractEpisodeMetadata(input);
-    assert.equal(result, expectedOutput);
+    assert.equal(result.fullMatch, expectedOutput);
   });
 
   it('should extract episode metadata correctly for short naming: Sxx.EPxx', () => {
     const input = 'Example Series S01.EP01';
     const expectedOutput = 'S01.EP01';
     const result = extractEpisodeMetadata(input);
-    assert.equal(result, expectedOutput);
+    assert.equal(result.fullMatch, expectedOutput);
   });
   it('should extract episode metadata correctly for short naming: Sxx Exx', () => {
     const input = 'Example Series S01 E01';
     const expectedOutput = 'S01 E01';
     const result = extractEpisodeMetadata(input);
-    assert.equal(result, expectedOutput);
+    assert.equal(result.fullMatch, expectedOutput);
   });
 });
 
