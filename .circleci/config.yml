@@ -1,0 +1,21 @@
+version: 2.1
+workflows:
+  testing:
+    jobs:
+      - prepare
+      - test-and-build
+jobs:
+  prepare:
+    machine: true
+    resource_class: substream/core-runner
+    steps:
+      - run: curl -fsSL https://deb.nodesource.com/setup_22.x -o nodesource_setup.sh && bash ./nodesource_setup.sh
+      - run: sudo apt-get install -y nodejs
+      - run: node -v
+  test-and-build:
+    machine: true
+    resource_class: substream/core-runner
+    steps:
+      - run: npm install
+      - run: npm run test
+      - run: npm run build
