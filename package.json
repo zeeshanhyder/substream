@@ -1,7 +1,12 @@
 {
-  "name": "temporal-hello-world",
-  "version": "0.1.0",
-  "private": true,
+  "name": "@hf/substream",
+  "version": "0.5.0",
+  "private": false,
+  "author": {
+    "email": "bzeeshanhyder@gmail.com",
+    "name": "Zeeshan H. Bhat",
+    "url": "https://github.com/zeeshanhyder"
+  },
   "scripts": {
     "build": "tsc --build",
     "build.watch": "tsc --build --watch",
@@ -38,19 +43,22 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
-    "@temporalio/testing": "^1.11.6",
-    "@tsconfig/node18": "^18.2.4",
-    "@types/mocha": "8.x",
-    "@types/node": "^22.13.4",
-    "@typescript-eslint/eslint-plugin": "^8.18.0",
-    "@typescript-eslint/parser": "^8.18.0",
-    "eslint": "^8.57.1",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-deprecation": "^3.0.0",
-    "mocha": "8.x",
+    "@swc/core": "^1.11.11",
+    "@swc/helpers": "^0.5.15",
+    "@temporalio/testing": "^1.11.7",
+    "@tsconfig/node22": "^22.0.0",
+    "@types/mocha": "10.x",
+    "@types/node": "^22.13.11",
+    "@typescript-eslint/eslint-plugin": "^8.27.0",
+    "@typescript-eslint/parser": "^8.27.0",
+    "eslint": "^9.23.0",
+    "eslint-config-prettier": "^10.1.1",
+    "mocha": "^11.2.0",
     "nodemon": "^3.1.7",
-    "prettier": "^3.4.2",
+    "prettier": "^3.5.3",
+    "regenerator-runtime": "^0.14.1",
     "ts-node": "^10.9.2",
-    "typescript": "^5.6.3"
+    "typescript": "^5.8.2",
+    "typescript-eslint": "^8.27.0"
   }
 }

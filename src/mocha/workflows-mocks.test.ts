@@ -1,10 +1,10 @@
 import { TestWorkflowEnvironment } from '@temporalio/testing';
 import { after, before, it } from 'mocha';
 import { Worker } from '@temporalio/worker';
-import { example } from '../lib/propel/workflows/process-media.workflow';
+import processMedia from '../lib/propel/workflows/process-media.workflow';
 import assert from 'assert';
 
-describe('Example workflow with mocks', () => {
+describe('processMedia workflow with mocks', () => {
   let testEnv: TestWorkflowEnvironment;
 
   before(async () => {
@@ -29,8 +29,8 @@ describe('Example workflow with mocks', () => {
     });
 
     const result = await worker.runUntil(
-      client.workflow.execute(example, {
-        args: ['Temporal'],
+      client.workflow.execute(processMedia, {
+        args: [{ userId: 'abc-123', mediaId: 'abc-122', filePath: 'fakepath' }],
         workflowId: 'test',
         taskQueue,
       }),
