@@ -1,13 +1,12 @@
 version: 2.1
+workflows:
+  testing:
+    jobs:
+      - test-and-build
 jobs:
   test-and-build:
-    docker:
-      - image: cimg/base:current
+    machine: true
     resource_class: substream/core-runner
     steps:
       - run: npm run test
       - run: npm run build
-workflows:
-  build-workflow:
-    jobs:
-      - test-and-build
