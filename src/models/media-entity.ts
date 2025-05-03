@@ -40,8 +40,11 @@ const MediaEntitySchema = new Schema({
       titleImage: { type: String },
       backdropImage: { type: String },
       posterImage: { type: String },
+      parentTmdbId: { type: String },
+      stillPath: { type: String },
       trailerLink: { type: String },
       language: { type: String },
+      genres: { type: [String] },
     },
     { strict: false },
   ),
@@ -52,18 +55,21 @@ export interface IMetadata {
   alternateTitle?: string;
   summary?: string;
   imdbId: string;
-  tmdbId: string;
+  tmdbId: string | number;
   releaseDate?: string;
   rating?: Array<{
     name: string;
-    rating: string;
+    rating?: string | number;
     iconLink?: string;
   }>;
   duration?: number;
+  generes?: string[];
   thumbnailImage?: string;
   titleImage?: string;
   backdropImage?: string;
+  parentTmdbId?: string;
   posterImage?: string;
+  stillPath?: string;
   trailerLink?: string;
   language?: string;
 }

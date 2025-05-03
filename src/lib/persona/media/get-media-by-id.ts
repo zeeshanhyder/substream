@@ -21,7 +21,7 @@ type UserMediaResult = Partial<{
  * @returns Promise<ServiceResponse<IMediaEntity | null>> - Service response with media entity or error
  * @throws {ServiceError} - For database issues or unexpected errors
  */
-export default async function getUserMedia(
+export default async function getUserMediaById(
   userMediaSchema: z.infer<typeof getUserMediaSchema>,
 ): Promise<ServiceResponse<IMediaEntity | null>> {
   try {

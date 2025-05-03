@@ -7,7 +7,7 @@
     "declarationMap": true,
     "sourceMap": true,
     "rootDir": "./src",
-    "outDir": "./lib",
+    "outDir": "./.build",
     "allowJs": true,
     "typeRoots": ["src/custom-types", "./node_modules/@types"]
   },

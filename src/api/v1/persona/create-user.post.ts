@@ -3,6 +3,8 @@ import { z } from 'zod';
 import { createUser } from '../../../lib/persona';
 import { ServiceError } from '../../../lib/utils';
 import { imageToBase64 } from '../../utils';
+import { IPersonaUser } from '../../../models/user-entity';
+import { ServiceResponse, HTTPStatus } from '../../../types/service-response';
 
 /**
  * Zod schema for user creation request validation
@@ -22,7 +24,10 @@ const userSchema = z.object({
  * @throws {ServiceError} For database issues or validation failures
  * @throws {ZodError} For invalid input format
  */
-const createUserHandler = async (req: Request<{}, {}, z.infer<typeof userSchema>>, res: Response) => {
+const createUserHandler = async (
+  req: Request<{}, {}, z.infer<typeof userSchema>>,
+  res: Response<ServiceResponse<IPersonaUser | null>>,
+) => {
   try {
     const result = userSchema.safeParse(req.body);
     if (!result.success) {
@@ -44,23 +49,19 @@ const createUserHandler = async (req: Request<{}, {}, z.infer<typeof userSchema>
     return;
   } catch (error) {
     if (error instanceof ServiceError) {
-      res.status(error.status).json({
-        error: error.message,
-      });
+      res.status(error.status).json(error);
       return;
     }
 
     if (error instanceof z.ZodError) {
-      res.status(400).json({
-        error: error.issues,
-      });
+      res.status(HTTPStatus.BAD_REQUEST).json(new ServiceError(error.issues.toString(), HTTPStatus.BAD_REQUEST));
       return;
     }
 
     console.error('Error creating user:', error);
-    res.status(500).json({
-      error: 'Internal server error',
-    });
+    res
+      .status(HTTPStatus.INTERNAL_SERVER_ERROR)
+      .json(new ServiceError('Internal server error', HTTPStatus.INTERNAL_SERVER_ERROR));
     return;
   }
 };

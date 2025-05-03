@@ -3,3 +3,4 @@ node_modules
 .temporal
 **src/types/lib
 /lib
+.build

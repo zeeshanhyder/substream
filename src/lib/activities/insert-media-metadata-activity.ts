@@ -1,6 +1,7 @@
-import { MediaEntityModel, IMediaEntity } from '../../models/media-entity';
+import { MediaEntityModel, IMediaEntity, IMetadata } from '../../models/media-entity';
 import { TmdbMovieShape, TmdbTVShowShape, isMovie, isTVShow } from '../../types/tmdb-find-results';
 import { databaseInstance } from '../mongoose-client';
+import { getYoutubeTrailerLink } from '../utils';
 
 /**
  * Inserts or updates metadata for a movie or TV show in the database
@@ -47,20 +48,21 @@ export async function insertMediaMetadata(
       title: mediaTitle,
       summary: tmdbResult.overview,
       category: isTVShow(tmdbResult) ? 'TV' : 'MOVIE',
+      generes: tmdbResult.genres?.map((genre) => genre.name) ?? [],
       imdbId: imdbId ?? '',
       tmdbId: tmdbResult.id,
       simpleId: '',
       index: 0,
       rating: [{ name: 'TMDB', rating: tmdbResult.vote_average }],
-      duration: 0,
+      duration: isMovie(tmdbResult) ? (tmdbResult?.runtime ?? 0) * 60 : 0,
       thumbnailImage: tmdbResult.poster_path,
-      titleImage: '',
+      titleImage: tmdbResult.images?.logos?.[0]?.file_path ?? '',
       backdropImage: tmdbResult.backdrop_path,
       posterImage: tmdbResult.poster_path,
-      trailerLink: '',
-    },
+      trailerLink: getYoutubeTrailerLink(tmdbResult),
+    } as IMetadata,
   };
-  console.log(`INFO: Inserting ${tmdbResult?.media_type ?? ''} metadata into DB`);
+  console.log(`INFO: Inserting ${metadataObject.metadata.title ?? ''} metadata into DB`);
   const updatedMediaEntry = await MediaEntityModel.findOneAndUpdate({ id: mediaId, userId }, metadataObject, {
     new: true,
   });

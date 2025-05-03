@@ -1,8 +1,9 @@
 import { Request, Response } from 'express';
 import z, { ZodError } from 'zod';
-import { HTTPStatus } from '../../../types/service-response';
+import { HTTPStatus, ServiceResponse } from '../../../types/service-response';
 import { ServiceError } from '../../../lib/utils';
 import { getUserMedia } from '../../../lib/persona';
+import { IMediaEntity } from '../../../models/media-entity';
 
 /**
  * Zod schema for validating user media requests
@@ -18,7 +19,10 @@ const userMediaSchema = z.object({
  * @param res - Express response object
  * @returns ServiceResponse with user's media items or error details
  */
-export default async function fetchUserMedia(req: Request<z.infer<typeof userMediaSchema>, {}, {}>, res: Response) {
+export default async function fetchUserMedia(
+  req: Request<z.infer<typeof userMediaSchema>, {}, {}>,
+  res: Response<ServiceResponse<IMediaEntity[] | null>>,
+) {
   try {
     const { userId } = req.params;
     const { category } = req.query;
@@ -34,7 +38,7 @@ export default async function fetchUserMedia(req: Request<z.infer<typeof userMed
     if (error instanceof ZodError) {
       res.status(HTTPStatus.BAD_REQUEST).json({
         data: null,
-        error: error.issues,
+        error: error.issues.toString(),
         status: HTTPStatus.BAD_REQUEST,
       });
       return;
