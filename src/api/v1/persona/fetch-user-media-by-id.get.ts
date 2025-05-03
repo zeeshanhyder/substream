@@ -2,35 +2,35 @@ import { Request, Response } from 'express';
 import z, { ZodError } from 'zod';
 import { HTTPStatus, ServiceResponse } from '../../../types/service-response';
 import { ServiceError } from '../../../lib/utils';
-import { getMediaWatchHistoryForUser } from '../../../lib/persona';
-import { IWatchHistoryEntry } from '../../../models/watch-history';
+import { getUserMediaById } from '../../../lib/persona';
+import { IMediaEntity } from '../../../models/media-entity';
 
 /**
- * Zod schema for validating media watch history requests
+ * Zod schema for validating user media requests
  */
-const userWatchSchema = z.object({
+const userMediaSchema = z.object({
   userId: z.string().min(1, 'User ID is required'),
   mediaId: z.string().min(1, 'Media ID is required'),
 });
 
 /**
- * Express handler for retrieving watch history for a specific media item
- * @param req - Express request with userId and mediaId in params
+ * Express handler for retrieving a user's media library with optional category filtering
+ * @param req - Express request with userId in params and optional category in query
  * @param res - Express response object
- * @returns ServiceResponse with media watch entry or error details
+ * @returns ServiceResponse with user's media items or error details
  */
-export default async function fetchMediaWatchHistory(
-  req: Request<z.infer<typeof userWatchSchema>, {}, {}>,
-  res: Response<ServiceResponse<IWatchHistoryEntry | null>>,
+export default async function fetchUserMediaById(
+  req: Request<z.infer<typeof userMediaSchema>, {}, {}>,
+  res: Response<ServiceResponse<IMediaEntity | null>>,
 ) {
   try {
     const { userId, mediaId } = req.params;
-    const validationResult = userWatchSchema.safeParse({ userId, mediaId });
+    const safeUserMediaInput = userMediaSchema.safeParse({ userId, mediaId });
 
-    if (!validationResult.success) {
-      throw validationResult.error;
+    if (!safeUserMediaInput.success) {
+      throw safeUserMediaInput.error;
     }
-    const watchEntry = await getMediaWatchHistoryForUser(userId, mediaId);
+    const watchEntry = await getUserMediaById(safeUserMediaInput.data);
     res.status(watchEntry.status).json(watchEntry);
     return;
   } catch (error) {

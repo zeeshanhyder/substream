@@ -1,5 +1,6 @@
 import { HTTPStatus } from '../types/service-response';
 import { PipelineStage } from 'mongoose';
+import { TmdbMovieShape, TmdbTVShowShape } from '../types/tmdb-find-results';
 
 /**
  * Custom error class for service-related errors with HTTP status codes
@@ -78,12 +79,12 @@ export const mongoMediaSearchPipeline = (filePath: string, userId: string) => [
  * @returns Object containing facet stages for TV shows and movies
  * @private
  */
-const getFacet = (userId: string) => {
+const getFacet = (userId: string, mediaId: string) => {
   const facets = {
     tvShows: [
       { $unwind: '$seasons' },
       { $unwind: '$seasons.episodes' },
-      { $match: { 'seasons.episodes.userId': userId } },
+      { $match: { 'seasons.episodes.id': mediaId } },
       {
         $project: {
           result: '$seasons.episodes',
@@ -122,13 +123,15 @@ export const mongoMediaSearchPipelineByUserId = (userId: string, mediaId: string
   {
     $match: {
       $or: [
-        { 'seasons.episodes.userId': userId, 'seasons.episodes.id': mediaId },
-        { userId: userId, id: mediaId },
+        // Search within TV show episodes (nested in seasons)
+        { 'seasons.episodes': { $elemMatch: { userId: userId, id: mediaId } } },
+        // Search for movies (direct document match)
+        { userId, id: mediaId }, // Using object property shorthand for cleaner syntax
       ],
     },
   },
   {
-    $facet: getFacet(userId),
+    $facet: getFacet(userId, mediaId),
   },
   {
     $project: {
@@ -139,7 +142,15 @@ export const mongoMediaSearchPipelineByUserId = (userId: string, mediaId: string
   },
   { $unwind: '$result' },
   { $replaceRoot: { newRoot: '$result' } },
-  {
-    $limit: 1, // Lsimit to 1 document
-  },
 ];
+
+export const getYoutubeTrailerLink = (tmdbResult: TmdbMovieShape | TmdbTVShowShape) => {
+  const youtubeTrailer = tmdbResult.videos?.results.find(
+    (video) => video.type === 'Trailer' && video.site === 'YouTube',
+  );
+  const youtubeTrailerKey = youtubeTrailer?.key ?? '';
+  if (youtubeTrailerKey) {
+    return `https://www.youtube.com/watch?v=${youtubeTrailerKey}`;
+  }
+  return '';
+};

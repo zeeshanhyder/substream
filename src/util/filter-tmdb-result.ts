@@ -1,3 +1,4 @@
+import { getYoutubeTrailerLink } from '../lib/utils';
 import { IMediaEntity, IMetadata, MediaEntityModel } from '../models/media-entity';
 import { IntermediateMetadata } from '../types/media-metadata';
 import {
@@ -67,6 +68,7 @@ export const mapEpisodeToMediaEntry = (
   episodeNumber: number,
   seasonNumber: number,
   episode?: TmdbEpisodeShape,
+  show?: TmdbTVShowShape,
 ): IMediaEntity => {
   return new MediaEntityModel({
     id,
@@ -79,12 +81,21 @@ export const mapEpisodeToMediaEntry = (
     episodeNumber,
     seasonNumber,
     metadata: {
+      imdbId,
       title: episode?.name ?? '',
       summary: episode?.overview ?? '',
       tmdbId: String(episode?.id ?? 0),
-      imdbId: imdbId,
       releaseDate: String(episode?.air_date) ?? '',
       rating: [{ name: 'TMDB', rating: String(episode?.vote_average ?? 0) }],
+      duration: (episode?.runtime ?? 0) * 60,
+      thumbnailImage: show?.poster_path,
+      posterImage: show?.poster_path,
+      parentTmdbId: show?.id,
+      backdropImage: show?.backdrop_path,
+      titleImage: show?.images?.logos?.[0]?.file_path ?? '',
+      stillPath: episode?.still_path,
+      trailerLink: show ? getYoutubeTrailerLink(show) : '',
+      generes: show?.genres?.map((genre) => genre.name) ?? [],
     },
   });
 };

@@ -113,6 +113,7 @@ export async function insertEpisodesMetadata(
           episodeNumberFormatted,
           seasonNumberFormatted,
           newEpisodeMetadata?.[0],
+          tmdbResult,
         );
         episodeList?.push(newEpisodeEntry);
         episodeList = episodeList?.sort((a, b) => (a?.episodeNumber ?? 0) - (b?.episodeNumber ?? 0));
@@ -170,6 +171,7 @@ export async function insertEpisodesMetadata(
             episodeNumberFormatted,
             seasonNumberFormatted,
             filterAvailableEpisodeMetadata?.[0],
+            tmdbResult,
           ),
         ],
       };
