@@ -23,7 +23,7 @@ type UserMediaResult = Partial<{
  */
 export default async function getUserMediaById(
   userMediaSchema: z.infer<typeof getUserMediaSchema>,
-): Promise<ServiceResponse<IMediaEntity | null>> {
+): Promise<ServiceResponse<IMediaEntity | null | {}>> {
   try {
     const db = databaseInstance.getDb();
     if (!db) {
@@ -42,9 +42,12 @@ export default async function getUserMediaById(
 
     const pipeline = mongoMediaSearchPipelineByUserId(safeUserId, safeMediaId);
     const mediaResult = await MediaEntityModel.aggregate<UserMediaResult>(pipeline);
-    let media!: IMediaEntity | null;
+    let media: IMediaEntity | null = null;
     if (mediaResult.length > 0) {
       media = mediaResult[0]?.result ?? null;
+      if (media !== null) {
+        media.parent = mediaResult[0]?.parent;
+      }
     }
     return {
       data: media,

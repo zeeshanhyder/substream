@@ -81,10 +81,12 @@ export const mongoMediaSearchPipeline = (filePath: string, userId: string) => [
  */
 const getFacet = (userId: string, mediaId: string) => {
   const facets = {
-    tvShows: [
+    episode: [
       { $unwind: '$seasons' },
       { $unwind: '$seasons.episodes' },
-      { $match: { 'seasons.episodes.id': mediaId } },
+      {
+        $match: { 'seasons.episodes.id': mediaId },
+      },
       {
         $project: {
           result: '$seasons.episodes',
@@ -97,7 +99,16 @@ const getFacet = (userId: string, mediaId: string) => {
         },
       },
     ],
-    movies: [
+    tvShow: [
+      { $match: { userId, category: 'TV' } },
+      {
+        $project: {
+          result: '$$ROOT',
+          parent: null,
+        },
+      },
+    ],
+    movie: [
       { $match: { userId, category: 'MOVIE' } },
       {
         $project: {
@@ -123,10 +134,9 @@ export const mongoMediaSearchPipelineByUserId = (userId: string, mediaId: string
   {
     $match: {
       $or: [
+        { userId, id: mediaId },
         // Search within TV show episodes (nested in seasons)
         { 'seasons.episodes': { $elemMatch: { userId: userId, id: mediaId } } },
-        // Search for movies (direct document match)
-        { userId, id: mediaId }, // Using object property shorthand for cleaner syntax
       ],
     },
   },
@@ -136,7 +146,7 @@ export const mongoMediaSearchPipelineByUserId = (userId: string, mediaId: string
   {
     $project: {
       result: {
-        $concatArrays: ['$tvShows', '$movies'],
+        $concatArrays: ['$episode', '$tvShow', '$movie'],
       },
     },
   },

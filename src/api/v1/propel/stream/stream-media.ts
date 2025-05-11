@@ -4,6 +4,7 @@ import { ServiceError } from '../../../../lib/utils';
 import { HTTPStatus } from '../../../../types/service-response';
 import { getUserMediaById } from '../../../../lib/persona';
 import { z, ZodError } from 'zod';
+import { IMediaEntity } from '../../../../models/media-entity';
 
 /**
  * Zod schema for validating media streaming requests
@@ -24,7 +25,7 @@ const mediaFetchSchema = z.object({
 export default async function streamMedia(req: Request<z.infer<typeof mediaFetchSchema>, {}, {}>, res: Response) {
   try {
     const { userId, mediaId } = req.params;
-    const range = req.headers.range ?? 'bytes 1000 - 50000';
+    const range = req.headers.range ?? 'bytes 0-';
 
     const safeParseInput = mediaFetchSchema.safeParse({ userId, mediaId });
 
@@ -33,7 +34,7 @@ export default async function streamMedia(req: Request<z.infer<typeof mediaFetch
     }
 
     const mediaResult = await getUserMediaById(safeParseInput.data);
-    const media = mediaResult.data;
+    const media = mediaResult.data as IMediaEntity | null;
 
     if (!media || !media.mediaLocation) {
       throw new ServiceError('Media not found', HTTPStatus.NOT_FOUND);

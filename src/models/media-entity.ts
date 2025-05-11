@@ -93,6 +93,7 @@ export interface IMediaEntity extends mongoose.Document {
   category: 'MOVIE' | 'TV';
   metadata?: IMetadata;
   userId: string;
+  parent?: IMediaEntity;
 }
 
 const MediaEntityModel = model<IMediaEntity>('Media', MediaEntitySchema);
