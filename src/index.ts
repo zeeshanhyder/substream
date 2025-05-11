@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 import { getLocalIPAddress } from './util/get-ip-address';
 import { TemporalClient } from './lib/temporal-client';
 import attachTemporalClient from './middleware/temporal';
@@ -20,6 +21,7 @@ try {
 }
 
 const app = express();
+app.use(cors());
 app.use(express.json());
 app.use(attachTemporalClient(temporalClient));
 

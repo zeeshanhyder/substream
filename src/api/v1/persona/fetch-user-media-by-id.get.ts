@@ -21,7 +21,7 @@ const userMediaSchema = z.object({
  */
 export default async function fetchUserMediaById(
   req: Request<z.infer<typeof userMediaSchema>, {}, {}>,
-  res: Response<ServiceResponse<IMediaEntity | null>>,
+  res: Response<ServiceResponse<IMediaEntity | null | {}>>,
 ) {
   try {
     const { userId, mediaId } = req.params;
