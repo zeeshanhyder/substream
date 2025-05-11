@@ -1,0 +1,12 @@
+version: 2.1
+workflows:
+  testing:
+    jobs:
+      - test-and-build
+jobs:
+  test-and-build:
+    machine: true
+    resource_class: substream/core-runner
+    steps:
+      - run: npm run test
+      - run: npm run build
